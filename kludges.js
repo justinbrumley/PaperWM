@@ -224,10 +224,6 @@ function getSavedProp(obj, name) {
     return savedProps.get(obj)[name].saved;
 }
 
-function saveProp(obj, name) {
-    registerOverrideProp(obj, name);
-}
-
 function registerOverrideProp(obj, name, override) {
     let prop = obj[name];
     let props = savedProps.get(obj);
@@ -243,7 +239,7 @@ function registerOverrideProp(obj, name, override) {
 }
 
 function registerOverridePrototype(obj, name, override) {
-    registerOverrideProp(obj.prototype[name], override);
+    registerOverrideProp(obj.prototype, name, override);
 }
 
 function disableOverride(obj, name) {
@@ -283,14 +279,14 @@ function restoreMethod(obj, name) {
 var signals;
 function init() {
     savedProps = new Map();
-    saveProp(imports.ui.messageTray.MessageTray.prototype, '_updateState');
-    saveProp(WindowManager.WindowManager.prototype, '_prepareWorkspaceSwitch');
-    saveProp(Workspace.Workspace.prototype, '_isOverviewWindow');
-    saveProp(Workspace.WindowClone.prototype, 'getOriginalPosition');
-    saveProp(Workspace.Workspace.prototype, '_realRecalculateWindowPositions');
-    saveProp(Workspace.UnalignedLayoutStrategy.prototype, '_sortRow');
-    saveProp(WindowManager.WorkspaceTracker.prototype, '_checkWorkspaces');
-    saveProp(WindowManager.TouchpadWorkspaceSwitchAction.prototype, '_checkActivated');
+    registerOverridePrototype(imports.ui.messageTray.MessageTray, '_updateState');
+    registerOverridePrototype(WindowManager.WindowManager, '_prepareWorkspaceSwitch');
+    registerOverridePrototype(Workspace.Workspace, '_isOverviewWindow');
+    registerOverridePrototype(Workspace.WindowClone, 'getOriginalPosition');
+    registerOverridePrototype(Workspace.Workspace, '_realRecalculateWindowPositions');
+    registerOverridePrototype(Workspace.UnalignedLayoutStrategy, '_sortRow');
+    registerOverridePrototype(WindowManager.WorkspaceTracker, '_checkWorkspaces');
+    registerOverridePrototype(WindowManager.TouchpadWorkspaceSwitchAction, '_checkActivated');
 
     registerOverridePrototype(Workspace.Workspace, '_isOverviewWindow', (win) => {
         let metaWindow = win.meta_window;
@@ -309,9 +305,9 @@ function enable() {
 
     function onlyScratchInOverview() {
         if (settings.get_boolean('only-scratch-in-overview')) {
-            disableOverride(Workspace.Workspace.prototype, '_isOverviewWindow');
-        } else {
             enableOverride(Workspace.Workspace.prototype, '_isOverviewWindow');
+        } else {
+            disableOverride(Workspace.Workspace.prototype, '_isOverviewWindow');
         }
     }
     signals.connect(settings, 'changed::only-scratch-in-overview',
