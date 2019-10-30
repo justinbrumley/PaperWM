@@ -192,6 +192,9 @@ class Space extends Array {
                                        style_class: 'tile-preview'});
         this.selection = selection;
 
+        // Disable window highlighting
+        this.selection.hide();
+
         clip.space = this;
         cloneContainer.space = this;
 
@@ -983,11 +986,9 @@ box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, .7);
     }
 
     updateName() {
-        if (prefs.use_workspace_name) {
-            this.label.show();
-        } else {
-            this.label.hide();
-        }
+        // Hide extra label that shows after tweaking top bar
+        this.label.hide();
+
         let name = this.settings.get_string('name');
         if (name === '')
             name = Meta.prefs_get_workspace_name(this.workspace.index());
@@ -2224,26 +2225,21 @@ function ensuredX(meta_window, space) {
     let clone = meta_window.clone;
 
     let x;
+
     if (neighbour || space.isVisible(meta_window) || meta_window.lastFrame === undefined)
         x = Math.round(clone.targetX) + space.targetX;
     else
         x = meta_window.lastFrame.x - monitor.x;
+
     let gap = prefs.window_gap;
     let workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
     let min = workArea.x - monitor.x;
     let max = min + workArea.width;
     if (meta_window.fullscreen) {
         x = 0;
-    } else if (index == 0 && x <= min) {
-        // Always align the first window to the display's left edge
-        x = min;
-    } else if (index == space.length-1 && x + frame.width >= max) {
-        // Always align the first window to the display's right edge
-        x = max - frame.width;
     } else if (frame.width > workArea.width*0.9 - 2*(prefs.horizontal_margin + prefs.window_gap)) {
         // Consider the window to be wide and center it
         x = min + Math.round((workArea.width - frame.width)/2);
-
     } else if (x + frame.width > max) {
         // Align to the right prefs.horizontal_margin
         x = max - prefs.horizontal_margin - frame.width;
