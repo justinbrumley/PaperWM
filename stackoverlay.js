@@ -87,6 +87,9 @@ class ClickOverlay {
         this.signals.connect(
             enterMonitor, 'motion-event',
             (actor, event) => {
+                // Changing monitors while in workspace preview doesn't work
+                if (Tiling.inPreview)
+                    return;
                 let [x, y, z] = global.get_pointer();
                 let [lX, lY] = this._lastPointer;
                 this._lastPointer = [x, y];
@@ -220,6 +223,7 @@ var StackOverlay = class StackOverlay {
         if ("_previewId" in this)
             return;
         this._previewId = Mainloop.timeout_add(100, () => {
+            delete this._previewId;
             if (this.clone) {
                 this.clone.destroy();
                 this.clone = null;
@@ -243,12 +247,18 @@ var StackOverlay = class StackOverlay {
                 x = monitor.x;
             clone.set_position(x, y);
         });
+
+        this._removeId = Mainloop.timeout_add_seconds(2, this.removePreview.bind(this));
     }
 
     removePreview() {
         if ("_previewId" in this) {
             Mainloop.source_remove(this._previewId);
             delete this._previewId;
+        }
+        if ("_removeId" in this) {
+            Mainloop.source_remove(this._removeId);
+            delete this._removeId;
         }
 
         if (!this.clone)

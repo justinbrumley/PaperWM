@@ -113,6 +113,12 @@ function init() {
     registerNavigatorAction('move-previous-workspace-backward',
                             Tiling.movePreviousSpaceBackwards);
 
+    registerNavigatorAction('switch-down-workspace', Tiling.selectDownSpace);
+    registerNavigatorAction('switch-up-workspace', Tiling.selectUpSpace);
+
+    registerNavigatorAction('move-down-workspace', Tiling.moveDownSpace);
+    registerNavigatorAction('move-up-workspace', Tiling.moveUpSpace);
+
     registerNavigatorAction('take-window', Tiling.takeWindow);
 
     registerMinimapAction("switch-next", (mw, space) => space.switchLinear(1));
@@ -529,6 +535,9 @@ function resolveConflicts() {
     for (let conflict of Settings.findConflicts()) {
         let {name, conflicts} = conflict;
         let action = byMutterName(name);
+        // Actionless key, can happen with updated schema without restart
+        if (!action)
+            continue;
         conflicts.forEach(c => overrideAction(c, action));
         overrides.push(conflict);
     }

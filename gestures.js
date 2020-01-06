@@ -248,8 +248,8 @@ function findTargetWindow(space, direction) {
         return selected.meta_window;
     }
     selected = selected && space.selectedWindow;
-    let workArea = Main.layoutManager.getWorkAreaForMonitor(space.monitor.index);
-    let min = workArea.x - space.monitor.x;
+    let workArea = space.workArea();
+    let min = workArea.x;
 
     let windows = space.getWindows().filter(w => {
         let  clone = w.clone;
@@ -316,7 +316,7 @@ function updateVertical(dy, t) {
         dy = 0;
         vy = 1;
         selected.actor.y = StackPositions.up*selected.height;
-        Tiling.spaces.selectSpace(Meta.MotionDirection.UP, false, transition);
+        Tiling.spaces.selectStackSpace(Meta.MotionDirection.UP, false, transition);
         selected = Tiling.spaces.selectedSpace;
         Tweener.removeTweens(selected.actor);
         Tweener.addTween(selected.actor, {scale_x: 0.9, scale_y: 0.9, time:
@@ -326,7 +326,7 @@ function updateVertical(dy, t) {
         dy = 0;
         vy = -1;
         selected.actor.y = StackPositions.down*selected.height;
-        Tiling.spaces.selectSpace(Meta.MotionDirection.DOWN, false, transition);
+        Tiling.spaces.selectStackSpace(Meta.MotionDirection.DOWN, false, transition);
         selected = Tiling.spaces.selectedSpace;
         Tweener.removeTweens(selected.actor);
         Tweener.addTween(selected.actor, {scale_x: 0.9, scale_y: 0.9, time:
